@@ -1,5 +1,5 @@
 from transformers import DonutProcessor, VisionEncoderDecoderModel
-from PIL import Image
+from PIL import Image, ImageOps, ImageFilter
 import json
 import os
 import re
@@ -18,24 +18,24 @@ def extract_invoice_data(image_path, output_file):
         print(f"Image file not found: {image_path}")
         return
 
-    # Step 3: Load and verify the image
+    # Step 3: Load and preprocess the image
     try:
-        image = Image.open(image_path).convert("RGB")
+        image = Image.open(image_path).convert("RGB")  # Ensure RGB format
         print(f"Image successfully loaded: {image_path}")
 
         # Resize image to match the model's expected input size
         image = image.resize((1920, 2560))  # Width x Height
         print("Image resized to (1920x2560).")
     except Exception as e:
-        print("Error loading or resizing image:", e)
+        print("Error loading or preprocessing image:", e)
         return
 
-    # Step 4: Preprocess the image
+    # Step 4: Preprocess the image for the Donut model
     try:
         pixel_values = processor(image, return_tensors="pt").pixel_values
         print(f"Image preprocessed into pixel values with shape: {pixel_values.shape}")
     except Exception as e:
-        print("Error during image preprocessing:", e)
+        print("Error during image preprocessing for model:", e)
         return
 
     # Step 5: Generate predictions
